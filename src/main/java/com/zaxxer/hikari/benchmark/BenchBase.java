@@ -85,6 +85,9 @@ public class BenchBase
         case "hikari":
             setupHikari();
             break;
+        case "ucp":
+            setupUcp();
+            break;
         case "tomcat":
             setupTomcat();
             break;
@@ -287,6 +290,26 @@ public class BenchBase
         config.setAutoCommit(false);
 
         DS = new HikariDataSource(config);
+    }
+    protected void setupUcp()
+    {
+        try {
+            oracle.ucp.jdbc.PoolDataSource ds = oracle.ucp.jdbc.PoolDataSourceFactory.getPoolDataSource();
+            ds.setConnectionFactoryClassName("com.zaxxer.hikari.benchmark.stubs.StubDriver");
+            //ds.setConnectionFactoryClassName("oracle.jdbc.pool.OracleDataSource");
+            ds.setURL(jdbcUrl);
+            ds.setUser("brettw");
+            ds.setPassword("password");
+            ds.setMaxPoolSize(maxPoolSize);
+            ds.setMinPoolSize(MIN_POOL_SIZE);
+            ds.setInitialPoolSize(maxPoolSize);
+            ds.setFastConnectionFailoverEnabled(false);
+            ds.setValidateConnectionOnBorrow(false);
+
+            DS = ds;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     protected void setupC3P0()
